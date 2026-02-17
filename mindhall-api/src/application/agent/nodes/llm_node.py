@@ -1,8 +1,13 @@
-from typing import Sequence
+from typing import Sequence, cast
 
+from langchain_core.language_models import LanguageModelInput
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import BaseMessage, BaseMessageChunk, SystemMessage
-from langgraph.graph.state import RunnableConfig
+from langchain_core.messages import (
+    AIMessage,
+    BaseMessage,
+    SystemMessage,
+)
+from langgraph.graph.state import Runnable, RunnableConfig
 
 from src.application.agent.prompts.mind_character_card_prompt import (
     MIND_CHARACTER_CARD_PROMPT,
@@ -11,7 +16,9 @@ from src.application.agent.states.agent_state import AgentState
 
 
 class LLMNode:
-    def __init__(self, model: BaseChatModel) -> None:
+    def __init__(
+        self, model: BaseChatModel | Runnable[LanguageModelInput, AIMessage]
+    ) -> None:
         self.model = model
 
     async def __call__(self, state: AgentState, config: RunnableConfig | None = None):
@@ -41,10 +48,10 @@ class LLMNode:
 
     async def _stream_llm_response(
         self,
-        model: BaseChatModel,
+        model: BaseChatModel | Runnable[LanguageModelInput, AIMessage],
         messages: Sequence[BaseMessage],
         config: RunnableConfig | None,
-    ) -> BaseMessageChunk | None:
+    ) -> BaseMessage | None:
         """Stream the LLM response."""
         response = None
         async for chunk in model.astream(messages, config):
@@ -52,4 +59,4 @@ class LLMNode:
                 response = chunk
             else:
                 response += chunk
-        return response
+        return cast(BaseMessage | None, response)
