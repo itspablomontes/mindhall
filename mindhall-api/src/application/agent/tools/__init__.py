@@ -4,6 +4,8 @@ Agent tools module.
 
 from langchain_core.tools import BaseTool
 
+from src.application.agent.tools.sum import sum_numbers
+
 
 def get_all_tools() -> list[BaseTool]:
     """
@@ -12,7 +14,7 @@ def get_all_tools() -> list[BaseTool]:
     Returns:
         List of tool instances
     """
-    return []
+    return [sum_numbers]
 
 
 __all__ = ["get_all_tools"]
