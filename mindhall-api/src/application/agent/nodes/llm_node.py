@@ -1,4 +1,4 @@
-from typing import Sequence, cast
+from typing import Any, Sequence, cast
 
 from langchain_core.language_models import LanguageModelInput
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -21,10 +21,14 @@ class LLMNode:
     ) -> None:
         self.model = model
 
-    async def __call__(self, state: AgentState, config: RunnableConfig | None = None):
+    async def __call__(
+        self, state: AgentState, config: RunnableConfig | None = None
+    ) -> dict[str, Any]:
         """Call the LLM with the current state."""
         chat_history = self.mount_chat_history(state)
         response = await self._stream_llm_response(self.model, chat_history, config)
+        if response is None:
+            return {"messages": []}
         return {"messages": [response]}
 
     def _build_system_content(self, state: AgentState) -> str:
