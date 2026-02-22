@@ -27,16 +27,9 @@ class AgentState(BaseModel):
 
 class StreamEvent(BaseModel):
     """
-    Event emitted during streaming.
-    Used to communicate with the frontend via SSE.
-
-    Mirrors LangChain astream_events v2 envelope where possible.
+    Event emitted during streaming (SSE envelope).
+    Used by orchestrator and frontend; event + data only.
     """
 
     event: str
-    name: str | None = None
-    run_id: str | None = None
-    parent_ids: list[str] = Field(default_factory=list)
-    metadata: dict = Field(default_factory=dict)
-    tags: list[str] = Field(default_factory=list)
     data: dict = Field(default_factory=dict)
